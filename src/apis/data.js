@@ -54,6 +54,7 @@ export default class{
    *
    * @param {*} items
    * @param {*} idProp
+   * @param {*} totalItems
    * @returns
    */
   pushItems({items, idProp = 'id', totalItems}, selector) {

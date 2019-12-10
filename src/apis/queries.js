@@ -332,11 +332,10 @@ export default class{
    * @returns {*}
    * @private
    */
-  export function makeQueryObject({filters, sort, pagination}) {
+  export function makeQueryObject({filters, sort, pagination, view}) {
     const _filters = filters.reduce((acc, {id, value}) => {
       let key = id;
       // let value = filter[key];
-
       // Input can now be a filter object generated from state, or generated from a query string. They have 2 different structures
       // if (filter.hasOwnProperty('id') && filter.hasOwnProperty('value') ) {
       //   key = filter.id;
@@ -382,7 +381,7 @@ export default class{
         _pagination.cursor = pagination.cursor;
       }
 
-      return {..._filters, ..._sort, ..._pagination};
+      return {..._filters, ..._sort, ..._pagination, view};
   };
 
   /**
@@ -506,13 +505,14 @@ export default class{
       _filterObject = filterObject;
       _queryObject = makeQueryObject(_filterObject);
       _queryString = makeQueryString(_queryObject);
+
     } else if (queryObject) {
 
       _queryObject = queryObject;
       _queryString = makeQueryString(_queryObject);
       _filterObject = makeFilterObjectFromQueryString(_queryString);
     }
-
+    
     return {
       filterObject : _filterObject, 
       queryObject: _queryObject, 
