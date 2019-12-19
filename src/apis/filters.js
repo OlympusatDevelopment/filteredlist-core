@@ -26,7 +26,7 @@ export default class{
   *
   */
   activateProxyHookSubscriptions() {
-    const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$} = this.hooks;
+    const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$ } = this.hooks;
 
     _onFilterChange$
       .subscribe(({change, state}) =>
@@ -131,8 +131,9 @@ export default class{
         if (state.queryString) {
           this.queries._writeQueryStringToUrl(state.queryString, this.options);
         }
-
+        
         // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
+        if (filterObject.view) {this.hooks.onSelectedViewChange$.next({selectedView: filterObject.view});}
         if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
         if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
         if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }

@@ -87,6 +87,7 @@ export default class{
    * @returns
    */
   _writeFilterObjectToStore(filterObject) {
+    console.log('write to store', filterObject);
     const filterObject$ = this.rxdux.dispatch({
         type: UPDATE_FILTER_OBJECT,
         data: {filterObject}
@@ -94,11 +95,12 @@ export default class{
       .pipe(
         first(),
         tap(filterObject => {
+          console.log('nexting filter Object', filterObject);
           this.hooks.onFilterObjectUpdated$.next({filterObject});
         })
       );
 
-      filterObject$.subscribe(() => {});
+      filterObject$.subscribe(() => {console.log('onFilterObjectChanged')});
       return filterObject$;
   }
 
@@ -244,6 +246,7 @@ export default class{
    * @param {*} filterQueryData
    */
   _writeFilterQueryDataToStore({filterObject, queryObject, queryString}) {
+    console.log('_writeFilterQueryDataToStore')
     this._writeQueryStringToStore(queryString);
     this._writeQueryObjectToStore(queryObject);
     this._writeFilterObjectToStore(filterObject);
@@ -283,6 +286,15 @@ export default class{
     }
 
     return _atob(inputBase64Str);
+  }
+
+  /**
+   * Plucks the filterObject from the current state
+   *
+   * @returns
+   */
+  getFilterObject(){
+    return this.rxdux.selector$('filterObject');  
   }
 
   /**

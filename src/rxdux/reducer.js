@@ -301,6 +301,8 @@ export default (options, hooks) => (state = initialState, action) => {
 
         /** PAGINATION FILTER */
         view['_pagination'] = paginationDefault;
+        
+        console.log('view: ', view)
 
         return view;
       });

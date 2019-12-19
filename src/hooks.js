@@ -1,4 +1,4 @@
-import {Subject} from 'rxjs';
+import {Subject, ReplaySubject} from 'rxjs';
 
 let _instance;
 
@@ -8,7 +8,7 @@ export default class{
      * fl.onFilterChange$.subscribe(() => {});
      * fl.onFilterChange$.next();
      */
-    onFilterChange$ = new Subject();
+    onFilterChange$ = new ReplaySubject(null);
     
         /**   
      * @examples
@@ -104,7 +104,7 @@ export default class{
      */
     onQueryStringUpdated$ = new Subject();
     onQueryObjectUpdated$ = new Subject();
-    onFilterObjectUpdated$ = new Subject();
+    onFilterObjectUpdated$ = new ReplaySubject({});
 
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();
