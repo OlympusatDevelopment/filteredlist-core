@@ -164,9 +164,10 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  replaceSelectedItems(items, selector) {
+  replaceSelectedItems({selectedItems}, selector) {
     const state$ = this.rxdux.dispatch({
-      type: REPLACE_SELECTED_ITEMS
+      type: REPLACE_SELECTED_ITEMS,
+      data: {selectedItems: selectedItems}
     }, 'state')
     .pipe(
       first(),

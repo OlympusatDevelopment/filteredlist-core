@@ -117,7 +117,7 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
     
     case REPLACE_SELECTED_ITEMS:
-      _state.items = _data.selectedItems;
+      _state.selectedItems = _data.selectedItems;
 
       return _state;
 
