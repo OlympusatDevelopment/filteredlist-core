@@ -108,7 +108,7 @@ export default class{
 
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();
-    onItemsCleared$ = new Subject();
+    onItemsSelected$ = new Subject();
     onViewsSet$ = new Subject();
     onSelectedViewChange$ = new Subject();
     onViewUpdated$ = new Subject();

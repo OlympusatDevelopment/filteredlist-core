@@ -15,7 +15,6 @@ export default class{
     this._isPhantomHistory = instance._isPhantomHistory;
     this.history = instance.history;
 
-    
   }
 
   /**
@@ -343,7 +342,6 @@ export default class{
    * @private
    */
   export function makeQueryObject({filters, sort, pagination, view}, options = null) {
-    console.log('pagination: ', pagination, options)
     const _filters = filters.reduce((acc, {id, value}) => {
       let key = id;
       // let value = filter[key];

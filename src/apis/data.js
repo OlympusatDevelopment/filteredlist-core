@@ -4,7 +4,9 @@ import {
   PUSH_ITEMS_TO_STORE,
   REPLACE_ITEMS,
   CLEAR_ITEMS,
-  UPDATE_ITEM
+  UPDATE_ITEM,
+  REPLACE_SELECTED_ITEMS,
+  CLEAR_SELECTED_ITEMS
 } from '../constants';
 
 export default class{
@@ -149,6 +151,50 @@ export default class{
         this.hooks.onItemsCleared$.next({items: state.items, state});
       }),
       mergeMap(() => this.getItems())
+    );
+
+    state$.subscribe(()=>{});
+    return state$
+  }
+
+  /**
+   * Replaces selectedItems in the store
+   *
+   * @param {*} item
+   * @param {*} idProp
+   * @returns
+   */
+  replaceSelectedItems(items, selector) {
+    const state$ = this.rxdux.dispatch({
+      type: REPLACE_SELECTED_ITEMS
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onItemsSelected$.next({selectedItems: state.selectedItems, state});
+      }),
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
+    );
+
+    state$.subscribe(()=>{});
+    return state$
+  }
+
+  /**
+   * Clears all selectedItems in the store
+   *
+   * @returns
+   */
+  clearSelectedItems() {
+    const state$ = this.rxdux.dispatch({
+      type: CLEAR_SELECTED_ITEMS
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onItemsSelected$.next({selectedItems: [], state});
+      }),
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
 
     state$.subscribe(()=>{});

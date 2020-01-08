@@ -12,6 +12,8 @@ import {
   REPLACE_ITEMS,
   CLEAR_ITEMS,
   UPDATE_ITEM,
+  REPLACE_SELECTED_ITEMS,
+  CLEAR_SELECTED_ITEMS,
   SET_VIEWS,
   SELECT_VIEW,
   UPDATE_VIEW,
@@ -111,6 +113,16 @@ export default (options, hooks) => (state = initialState, action) => {
           view._pagination = paginationDefault;
         }
       });
+
+      return _state;
+    
+    case REPLACE_SELECTED_ITEMS:
+      _state.items = _data.selectedItems;
+
+      return _state;
+
+    case CLEAR_SELECTED_ITEMS:
+      _state.selectedItems = []; 
 
       return _state;
 
