@@ -69,6 +69,7 @@ export default class{
       first(),
       tap(state => {
         this.hooks.onDataPushed$.next({items: state.items, state});
+        this.hooks.onLoadingChange$.next({loading: false, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state) : this.getItems())
     );
@@ -89,7 +90,9 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
-        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
+        items: Array.isArray(items) ? items : [items],
+        //TODO: What was the purpose of this method.
+        // items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
     }, 'state')
@@ -97,6 +100,7 @@ export default class{
       first(),
       tap(state => {
         this.hooks.onDataReplaced$.next({items: state.items, state});
+        this.hooks.onLoadingChange$.next({loading: false, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
@@ -121,6 +125,7 @@ export default class{
       first(),
       tap(state => {
         this.hooks.onItemUpdated$.next({item, items: state.items, state});
+        this.hooks.onLoadingChange$.next({loading: false, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );

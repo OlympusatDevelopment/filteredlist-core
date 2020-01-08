@@ -87,7 +87,6 @@ export default class{
    * @returns
    */
   _writeFilterObjectToStore(filterObject) {
-    console.log('write to store', filterObject);
     const filterObject$ = this.rxdux.dispatch({
         type: UPDATE_FILTER_OBJECT,
         data: {filterObject}
@@ -246,7 +245,6 @@ export default class{
    * @param {*} filterQueryData
    */
   _writeFilterQueryDataToStore({filterObject, queryObject, queryString}) {
-    console.log('_writeFilterQueryDataToStore')
     this._writeQueryStringToStore(queryString);
     this._writeQueryObjectToStore(queryObject);
     this._writeFilterObjectToStore(filterObject);
@@ -344,7 +342,8 @@ export default class{
    * @returns {*}
    * @private
    */
-  export function makeQueryObject({filters, sort, pagination, view}) {
+  export function makeQueryObject({filters, sort, pagination, view}, options = null) {
+    console.log('pagination: ', pagination, options)
     const _filters = filters.reduce((acc, {id, value}) => {
       let key = id;
       // let value = filter[key];
@@ -384,9 +383,12 @@ export default class{
       }, {});
 
       let _pagination = {
-        skip: Number(pagination.skip),
-        take: Number(pagination.take),
-        page: Number(pagination.page)
+        /*TODO: Get default pagination object from config
+        to set queryObject pagination if empty
+        */
+        skip: Number(pagination.skip || 0),
+        take: Number(pagination.take || 25),
+        page: Number(pagination.page || 1)
       };
 
       if (typeof pagination.cursor !== 'undefined') {
@@ -490,7 +492,6 @@ export default class{
         pagination: {},
         view: ''
       });
-
       return obj;
   }
 

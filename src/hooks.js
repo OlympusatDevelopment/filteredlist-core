@@ -81,7 +81,7 @@ export default class{
      * @examples
      * fl.onLoadingChange$.subscribe() => {});
      */
-    onLoadingChange$ = new Subject();
+    onLoadingChange$ = new ReplaySubject(null);
     
     /**   
      * @examples

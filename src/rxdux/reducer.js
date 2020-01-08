@@ -24,13 +24,12 @@ import {
 import _merge from 'lodash.merge';
 import {getFilters} from '../utils';
 import {makeFilterQueryData} from '../apis/queries';
-const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
+const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0, takeOptions: [10, 25, 50, 75, 100]};
 
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
  * */
 export default (options, hooks) => (state = initialState, action) => {
-  const lastState = {...state};
   let _state = {...state};
   let _data =  action.data;
 
@@ -121,6 +120,8 @@ export default (options, hooks) => (state = initialState, action) => {
 
       // Includes & defaults for views
       _data.views.map(view => {
+        //TODO: Consult with Adam on moving the paginationDefault to view config
+        // if (!view._pagination) { view['_pagination'] = view.pagination; }
         if (!view._pagination) { view['_pagination'] = paginationDefault; }
         if (!view.filterGroups) { view['filterGroups'] = []; }
       });
@@ -301,8 +302,6 @@ export default (options, hooks) => (state = initialState, action) => {
 
         /** PAGINATION FILTER */
         view['_pagination'] = paginationDefault;
-        
-        console.log('view: ', view)
 
         return view;
       });
