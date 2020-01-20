@@ -6,6 +6,7 @@ import {
 } from '../constants';
 import {first, tap, filter} from 'rxjs/operators';
 import _merge from 'lodash.merge';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -50,7 +51,8 @@ export default class{
         first(),
         tap(queryString => {
           this.hooks.onQueryStringUpdated$.next({queryString});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
     queryString$.subscribe(() => {});
@@ -72,7 +74,8 @@ export default class{
         first(),
         tap(queryObject => {
           this.hooks.onQueryObjectUpdated$.next({queryObject});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
       queryObject$.subscribe(() => {});
@@ -95,7 +98,8 @@ export default class{
         tap(filterObject => {
           console.log('nexting filter Object', filterObject);
           this.hooks.onFilterObjectUpdated$.next({filterObject});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
       filterObject$.subscribe(() => {console.log('onFilterObjectChanged')});
@@ -333,6 +337,9 @@ export default class{
 
     return `${this.history.location.pathname}${this.history.location.search}`;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }
 
   /**

@@ -161,7 +161,7 @@ export default (options, hooks) => (state = initialState, action) => {
 
     case UPDATE_COLUMN_VISIBILTY:
       const _updates = Array.isArray(_data.updates) ? _data.updates : [_data.updates];
-   
+
       // Input data example: _data.id _data.updates = {property: 'title', visible: false}
       _state.views = _state.views.map(view => {
 
@@ -175,7 +175,7 @@ export default (options, hooks) => (state = initialState, action) => {
                 column.visible = _update.visible;
               }
             });
-            
+
             return column;
           });
         }

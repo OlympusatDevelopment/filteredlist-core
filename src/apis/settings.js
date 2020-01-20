@@ -4,7 +4,7 @@ import {
   SET_ALL_COLUMNS_VISIBLE,
   UNSET_ALL_COLUMNS_VISIBLE
 } from '../constants';
-import { of } from 'rxjs';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -26,7 +26,8 @@ export default class{
       .pipe(map(views => 
         views.filter(view => ((viewId ? view.id === viewId : true)))[0].columns
           .map(column => ({ property: column.property, visible: !!column.visible }))
-      )); 
+      ),
+      untilDestroyed(this, 'destroy')); 
   }
 
   /**
@@ -37,6 +38,7 @@ export default class{
    * @returns
    */
   setColumnVisibility(id, updates) {
+    
     const state$ = this.rxdux.dispatch({
       type: UPDATE_COLUMN_VISIBILTY,
       data: {id, updates}
@@ -46,7 +48,8 @@ export default class{
       tap(state => {
         this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
       }),
-      mergeMap(state => this.getColumnVisibility(id))
+      mergeMap(state => this.getColumnVisibility(id)),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
@@ -70,7 +73,8 @@ export default class{
         this.hooks.onColumnVisibilityChange$.next({updates: 'set-all', views: state.views, state});
         this.hooks.onSetAllColumnsVisible$.next({views: state.views, state});
       }),
-      mergeMap(state => this.getColumnVisibility(id))
+      mergeMap(state => this.getColumnVisibility(id)),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
@@ -94,10 +98,14 @@ export default class{
         this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
         this.hooks.onUnsetAllColumnsVisible$.next({views: state.views, state});
       }),
-      mergeMap(state => this.getColumnVisibility(id))
+      mergeMap(state => this.getColumnVisibility(id)),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
     return state$;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }

@@ -8,6 +8,7 @@ import {
   REPLACE_SELECTED_ITEMS,
   CLEAR_SELECTED_ITEMS
 } from '../constants';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -37,7 +38,8 @@ export default class{
    */
   getItems() {
     return this.rxdux.selector$('items')
-      .pipe(map((item) => Object.keys(item).map(k => item[k])));
+      .pipe(map((item) => Object.keys(item).map(k => item[k])),
+      untilDestroyed(this, 'destroy'));
   }
 
   /**
@@ -48,7 +50,7 @@ export default class{
    */
   getItemById(id) {
     return this.rxdux.selector$('items')
-      .pipe(pluck(id));
+      .pipe(pluck(id), untilDestroyed(this, 'destroy'));
   }
 
   /**
@@ -70,10 +72,11 @@ export default class{
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onDataPushed$.next({items: state.items, state});
+        this.hooks.onDataPushed$.next({items: state.items, state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state) : this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state) : this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
     
     state$.subscribe(()=>{});
@@ -101,10 +104,11 @@ export default class{
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onDataReplaced$.next({items: state.items, state});
+        this.hooks.onDataReplaced$.next({items: state.items, state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(() => {});
@@ -126,10 +130,11 @@ export default class{
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onItemUpdated$.next({item, items: state.items, state});
+        this.hooks.onItemUpdated$.next({item, items: state.items, state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
@@ -150,7 +155,8 @@ export default class{
       tap(state => {
         this.hooks.onItemsCleared$.next({items: state.items, state});
       }),
-      mergeMap(() => this.getItems())
+      mergeMap(() => this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
@@ -174,7 +180,8 @@ export default class{
       tap(state => {
         this.hooks.onItemsSelected$.next({selectedItems: state.selectedItems, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
@@ -186,7 +193,7 @@ export default class{
    *
    * @returns
    */
-  clearSelectedItems() {
+  clearSelectedItems(selector) {
     const state$ = this.rxdux.dispatch({
       type: CLEAR_SELECTED_ITEMS
     }, 'state')
@@ -195,10 +202,14 @@ export default class{
       tap(state => {
         this.hooks.onItemsSelected$.next({selectedItems: [], state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(()=>{});
     return state$
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }

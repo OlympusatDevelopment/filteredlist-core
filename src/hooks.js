@@ -87,7 +87,7 @@ export default class{
      * @examples
      * fl.onColumnVisibilityChange$.subscribe() => {});
      */
-    onColumnVisibilityChange$ = new Subject();
+    onColumnVisibilityChange$ = new ReplaySubject(null);
     onSetAllColumnsVisible$ = new Subject();
     onUnsetAllColumnsVisible$ = new Subject();
 

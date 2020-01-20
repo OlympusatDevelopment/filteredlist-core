@@ -5,6 +5,7 @@ import {
 } from '../constants';
 import {mergeMap, filter, first, tap} from 'rxjs/operators';
 import { of } from 'rxjs';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -39,7 +40,8 @@ export default class{
       first(),
       tap(_views => {
         this.hooks.onViewsSet$.next({views: _views});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     views$.subscribe(() => {});
@@ -61,7 +63,8 @@ export default class{
       first(),
       tap(selectedView => {
         this.hooks.onSelectedViewChange$.next({selectedView});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     selectedView$.subscribe(() => {});
@@ -85,7 +88,8 @@ export default class{
         }),
         mergeMap(views => of(views
           .filter(view => view.id === _selectedView)[0]
-        ))
+        )),
+        untilDestroyed(this, 'destroy')
       )
   }
 
@@ -100,7 +104,8 @@ export default class{
       .pipe(
         mergeMap(views => of(views
           .filter(view => view.id === id)[0]
-        ))
+        )),
+        untilDestroyed(this, 'destroy')
       )
   }
 
@@ -124,10 +129,14 @@ export default class{
           state
         });
       }),
-      mergeMap(() => this.getViewById(id))
+      mergeMap(() => this.getViewById(id)),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(() => {});
     return state$;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }

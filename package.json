@@ -51,6 +51,7 @@
   "dependencies": {
     "history": "^4.7.2",
     "lodash.merge": "^4.6.1",
+    "ngx-take-until-destroy": "^5.4.0",
     "redux": "^4.0.1",
     "rxjs": "^6.4.0"
   }

@@ -4,6 +4,7 @@ import {
   CLEAR_WORKSPACE
 } from '../constants';
 import {tap, mergeMap, first} from 'rxjs/operators'; 
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -39,7 +40,8 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkspaceItemAdded$.next({item, workspace});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     workspace$.subscribe(() => {});
@@ -60,7 +62,8 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkspaceItemRemoved$.next({item: id, workspace});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     workspace$.subscribe(() => {});
@@ -80,10 +83,14 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkSpaceCleared$.next({workspace});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     workspace$.subscribe(() => {});
     return workspace$;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }
