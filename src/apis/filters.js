@@ -137,7 +137,7 @@ export default class{
         }
         
         // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
-        if (filterObject.view) {this.hooks.onSelectedViewChange$.next({selectedView: filterObject.view});}
+        // if (filterObject.view) {this.hooks.onSelectedViewChange$.next({selectedView: filterObject.view});} // Marco James: Removed this line. This interfered with filter.run.
         if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
         if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
         if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }

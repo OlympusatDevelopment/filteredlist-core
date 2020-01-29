@@ -91,7 +91,7 @@ export default class{
    * @param {*} idProp
    * @returns
    */
-  replaceItems({items, idProp = 'id', totalItems}, selector) {
+  replaceItems({items = [], idProp = 'id', totalItems = 5}, selector) {
     const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
