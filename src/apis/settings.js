@@ -105,6 +105,35 @@ export default class{
     state$.subscribe(()=>{});
     return state$;
   }
+    /**
+   * Takes a view id and some column settings update data and sends it to the reducer for processing
+   *
+   * @param {*} id
+   * @param {*} updates
+   * @returns
+   */
+  persistColumnSettings(id, updates) {
+    
+    /*
+    TODO: will work on this later
+    const state$ = this.rxdux.dispatch({
+      type: UPDATE_COLUMN_VISIBILTY,
+      data: {id, updates}
+    }, 'state')
+    .pipe(
+      first(),
+      tap(state => {
+        this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
+      }),
+      mergeMap(state => this.getColumnVisibility(id)),
+      untilDestroyed(this, 'destroy')
+    );
+
+    state$.subscribe(()=>{});
+    return state$;
+    */
+  }
+  
 
   // Destroy method added for untilDestroy(this, 'destroy')
   destroy(){}

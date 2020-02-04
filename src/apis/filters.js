@@ -30,6 +30,7 @@ export default class{
     const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$ } = this.hooks;
 
     _onFilterChange$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onFilterChange$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -38,6 +39,7 @@ export default class{
       );
 
     _onPaginationChange$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onPaginationChange$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -46,6 +48,7 @@ export default class{
       );
 
     _onSort$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onSort$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -54,6 +57,7 @@ export default class{
       );
 
     _onFiltersReset$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onFiltersReset$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
