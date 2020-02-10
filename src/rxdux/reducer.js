@@ -15,9 +15,11 @@ import {
   REPLACE_SELECTED_ITEMS,
   CLEAR_SELECTED_ITEMS,
   SET_VIEWS,
+  SET_PERSISTED_VIEW_SETTINGS,
   SELECT_VIEW,
   UPDATE_VIEW,
   UPDATE_COLUMN_VISIBILTY,
+  UPDATE_COLUMN_SETTINGS,
   SET_ALL_COLUMNS_VISIBLE,
   UNSET_ALL_COLUMNS_VISIBLE,
   RUN_FILTER,
@@ -132,6 +134,14 @@ export default (options, hooks) => (state = initialState, action) => {
 
       // Includes & defaults for views
       _data.views.map(view => {
+        // if view persistViewSettings
+        if (view.persistedViewsSettings) {
+          const viewSettings = _state.persistViewsSettings.find(v => v.view === view.id);
+          console.log("TCL: viewSettings", viewSettings)
+          // replace view columns with persisted view settings
+          // view.columns = viewSettings.data.columns;
+        }
+
         //TODO: Consult with Adam on moving the paginationDefault to view config
         // if (!view._pagination) { view['_pagination'] = view.pagination; }
         if (!view._pagination) { view['_pagination'] = paginationDefault; }
@@ -140,6 +150,17 @@ export default (options, hooks) => (state = initialState, action) => {
 
       _state.views = _data.views;
       _state.selectedView = _data.views[0].id; // set selected view as the first item
+
+      return _state;
+
+    case SELECT_VIEW:
+      _state.selectedView = _data.id; 
+
+      return _state;
+    case SET_PERSISTED_VIEW_SETTINGS:
+      // Views must be an array, but we can pass a single view in if we want
+      if (!Array.isArray(_data.settings)) { _data.settings = [_data.settings]; }
+      _state.persistedViewsSettings = _data.settings;
 
       return _state;
 
@@ -180,6 +201,22 @@ export default (options, hooks) => (state = initialState, action) => {
           });
         }
 
+        return view;
+      });
+
+      return _state;
+
+    case UPDATE_COLUMN_SETTINGS:
+
+      const _settings = Array.isArray(_data.settings) ? _data.settings : [_data.settings];
+
+      // Input data example: _data.id _data.updates = {property: 'title', visible: false}
+      _state.views = _state.views.map(view => {
+
+        // If the view id matches, find & update columns we need to modify
+        if (view.id === _data.id) {
+            view.columns = _settings;
+        }
         return view;
       });
 
@@ -233,8 +270,9 @@ export default (options, hooks) => (state = initialState, action) => {
     // }
 
       // Update the selectedView with the current filter instructions
-      const {queryObject, queryString, filterObject} = makeFilterQueryData({filterObject: _data});
-      _state.selectedView = _data.view;
+      const {queryObject, queryString} = makeFilterQueryData({filterObject: _data});
+      //use _state.views[0] as default if _data.view === ""
+      _state.selectedView = _data.view === "" ? _state.views[0].id : _data.view;
       _state.queryObject = queryObject;
       _state.queryString = queryString;
       _state.filterObject = _data;
@@ -288,6 +326,7 @@ export default (options, hooks) => (state = initialState, action) => {
 
       _state.loading = true;
 
+      console.log("TCL: _state", _state)
       return _state;
 
     case RESET_FILTERS:

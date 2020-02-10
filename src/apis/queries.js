@@ -113,6 +113,7 @@ export default class{
  * @private
  */
   _writeQueryStringToUrl(queryString, options) {
+    console.log("TCL: _writeQueryStringToUrl -> queryString", queryString)
     // Only allow if the config file specifies
     if (options.writeQueryStringToUrl 
         && (queryString || queryString === null) 
@@ -465,6 +466,9 @@ export default class{
       .split("&")
       .reduce((acc, segment) => {
         // segment: genre=1234nksfngkw45w45
+        if (!segment)
+          return acc;
+
         const _segment = segment.split('='); // ['genre','1234nksfngkw45w45']
         const key = _segment[0];
         const value = _segment[1].split(',');
