@@ -137,7 +137,6 @@ export default (options, hooks) => (state = initialState, action) => {
         // if view persistViewSettings
         if (view.persistedViewsSettings) {
           const viewSettings = _state.persistViewsSettings.find(v => v.view === view.id);
-          console.log("TCL: viewSettings", viewSettings)
           // replace view columns with persisted view settings
           // view.columns = viewSettings.data.columns;
         }
@@ -326,7 +325,6 @@ export default (options, hooks) => (state = initialState, action) => {
 
       _state.loading = true;
 
-      console.log("TCL: _state", _state)
       return _state;
 
     case RESET_FILTERS:

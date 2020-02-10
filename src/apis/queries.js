@@ -113,7 +113,6 @@ export default class{
  * @private
  */
   _writeQueryStringToUrl(queryString, options) {
-    console.log("TCL: _writeQueryStringToUrl -> queryString", queryString)
     // Only allow if the config file specifies
     if (options.writeQueryStringToUrl 
         && (queryString || queryString === null) 
