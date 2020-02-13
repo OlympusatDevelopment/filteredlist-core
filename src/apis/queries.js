@@ -6,6 +6,7 @@ import {
 } from '../constants';
 import {first, tap, filter} from 'rxjs/operators';
 import _merge from 'lodash.merge';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance) {
@@ -15,7 +16,6 @@ export default class{
     this._isPhantomHistory = instance._isPhantomHistory;
     this.history = instance.history;
 
-    
   }
 
   /**
@@ -51,7 +51,8 @@ export default class{
         first(),
         tap(queryString => {
           this.hooks.onQueryStringUpdated$.next({queryString});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
     queryString$.subscribe(() => {});
@@ -73,7 +74,8 @@ export default class{
         first(),
         tap(queryObject => {
           this.hooks.onQueryObjectUpdated$.next({queryObject});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
       queryObject$.subscribe(() => {});
@@ -94,11 +96,13 @@ export default class{
       .pipe(
         first(),
         tap(filterObject => {
+          console.log('nexting filter Object', filterObject);
           this.hooks.onFilterObjectUpdated$.next({filterObject});
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       );
 
-      filterObject$.subscribe(() => {});
+      filterObject$.subscribe(() => {console.log('onFilterObjectChanged')});
       return filterObject$;
   }
 
@@ -286,6 +290,15 @@ export default class{
   }
 
   /**
+   * Plucks the filterObject from the current state
+   *
+   * @returns
+   */
+  getFilterObject(){
+    return this.rxdux.selector$('filterObject');  
+  }
+
+  /**
    * Plucks the queryObject from the current state
    *
    * @returns
@@ -324,6 +337,9 @@ export default class{
 
     return `${this.history.location.pathname}${this.history.location.search}`;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }
 
   /**
@@ -332,11 +348,10 @@ export default class{
    * @returns {*}
    * @private
    */
-  export function makeQueryObject({filters, sort, pagination}) {
+  export function makeQueryObject({filters, sort, pagination, view}, options = null) {
     const _filters = filters.reduce((acc, {id, value}) => {
       let key = id;
       // let value = filter[key];
-
       // Input can now be a filter object generated from state, or generated from a query string. They have 2 different structures
       // if (filter.hasOwnProperty('id') && filter.hasOwnProperty('value') ) {
       //   key = filter.id;
@@ -373,16 +388,19 @@ export default class{
       }, {});
 
       let _pagination = {
-        skip: Number(pagination.skip),
-        take: Number(pagination.take),
-        page: Number(pagination.page)
+        /*TODO: Get default pagination object from config
+        to set queryObject pagination if empty
+        */
+        skip: Number(pagination.skip || 0),
+        take: Number(pagination.take || 25),
+        page: Number(pagination.page || 1)
       };
 
       if (typeof pagination.cursor !== 'undefined') {
         _pagination.cursor = pagination.cursor;
       }
 
-      return {..._filters, ..._sort, ..._pagination};
+      return {..._filters, ..._sort, ..._pagination, view};
   };
 
   /**
@@ -447,6 +465,9 @@ export default class{
       .split("&")
       .reduce((acc, segment) => {
         // segment: genre=1234nksfngkw45w45
+        if (!segment)
+          return acc;
+
         const _segment = segment.split('='); // ['genre','1234nksfngkw45w45']
         const key = _segment[0];
         const value = _segment[1].split(',');
@@ -479,7 +500,6 @@ export default class{
         pagination: {},
         view: ''
       });
-
       return obj;
   }
 
@@ -506,13 +526,14 @@ export default class{
       _filterObject = filterObject;
       _queryObject = makeQueryObject(_filterObject);
       _queryString = makeQueryString(_queryObject);
+
     } else if (queryObject) {
 
       _queryObject = queryObject;
       _queryString = makeQueryString(_queryObject);
       _filterObject = makeFilterObjectFromQueryString(_queryString);
     }
-
+    
     return {
       filterObject : _filterObject, 
       queryObject: _queryObject, 

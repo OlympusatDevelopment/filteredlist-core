@@ -5,6 +5,7 @@ import {
 import {mergeMap, map, first, tap} from 'rxjs/operators';
 import { of, merge, Subject } from 'rxjs';
 import {getFilters as _getFilters} from '../utils';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(rxdux, options, instance = {}) {
@@ -26,9 +27,10 @@ export default class{
   *
   */
   activateProxyHookSubscriptions() {
-    const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$} = this.hooks;
+    const {_onFilterChange$, onFilterChange$, _onPaginationChange$, onPaginationChange$, _onSort$, onSort$, _onFiltersReset$, onFiltersReset$ } = this.hooks;
 
     _onFilterChange$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onFilterChange$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -37,6 +39,7 @@ export default class{
       );
 
     _onPaginationChange$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onPaginationChange$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -45,6 +48,7 @@ export default class{
       );
 
     _onSort$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onSort$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -53,6 +57,7 @@ export default class{
       );
 
     _onFiltersReset$
+    .pipe( untilDestroyed(this, 'destroy'))
       .subscribe(({change, state}) =>
         onFiltersReset$.next({change, state, 
           replaceItems: ({items, idProp = 'id', totalItems}) => 
@@ -74,7 +79,8 @@ export default class{
         // first(),
         mergeMap(state => {
           return of(_getFilters({view, filterGroup, state}));
-        })
+        }),
+        untilDestroyed(this, 'destroy')
       )
   }
 
@@ -92,7 +98,8 @@ export default class{
             property: column.property, 
             sort: typeof column.sort === 'undefined' ? null : column.sort
           }))
-      )); 
+      ),
+      untilDestroyed(this, 'destroy')); 
   }
 
   /**
@@ -107,7 +114,8 @@ export default class{
       .pipe(map(views => 
         views.filter(view => ((viewId ? view.id === viewId : true)))[0]
           ._pagination
-      )); 
+      ),
+      untilDestroyed(this, 'destroy')); 
   }
 
   /**
@@ -131,12 +139,14 @@ export default class{
         if (state.queryString) {
           this.queries._writeQueryStringToUrl(state.queryString, this.options);
         }
-
+        
         // These _on hooks get picked up by the src/index file in the [initSubscriptions] fn
+        // if (filterObject.view) {this.hooks.onSelectedViewChange$.next({selectedView: filterObject.view});} // Marco James: Removed this line. This interfered with filter.run.
         if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
         if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
         if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
 
     state$.subscribe(() => {});// ensure a hook run
@@ -158,10 +168,14 @@ export default class{
       tap(state => {
         this.hooks._onFiltersReset$.next({change: {}, state});
         this.hooks.onLoadingChange$.next({loading: true});
-      })
+      }),
+      untilDestroyed(this, 'destroy')
     );
     state$.subscribe(() => {});
 
     return true;
   }
+
+  // Destroy method added for untilDestroy(this, 'destroy')
+  destroy(){}
 }

@@ -5,6 +5,7 @@ import reducer from './reducer';
 import { __TEST_RUNNER, RESET } from '../constants';
 let _instance;
 import initialState from  './initialState';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 export default class{
   constructor(instance = {}, hooks) {
@@ -50,7 +51,10 @@ export default class{
     let lastSelectedState = initialState[selector];
 
     this.store$
-      .pipe(pluck(selector))
+      .pipe(
+        pluck(selector),
+        untilDestroyed(this, 'destroy')
+        )
       .subscribe(selectedState => {
         if (selectedState !== lastSelectedState) {
           selected$.next(selectedState);
@@ -77,4 +81,6 @@ export default class{
 
     return {...this, initialState};
   }
+
+  destroy(){}
 }

@@ -65,10 +65,10 @@ describe('The filteredlist-core library', () => {
       .subscribe(state => {
         expect(state.filterObject).to.eql(mockBuiltFilterObj);
         expect(state.queryObject).to.eql(mockQueryObj);
-        expect(state.queryString).to.equal(mockQueryString.replace('&view=eli', ''));
+        expect(state.queryString).to.equal(mockQueryString);
         expect(state.selectedView).to.equal('eli');
         done();
-      })    
+      });
   });
 
   it('_onPageLoad should trigger the onFilterChange$ hook', done => {

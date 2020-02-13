@@ -12,10 +12,14 @@ import {
   REPLACE_ITEMS,
   CLEAR_ITEMS,
   UPDATE_ITEM,
+  REPLACE_SELECTED_ITEMS,
+  CLEAR_SELECTED_ITEMS,
   SET_VIEWS,
+  SET_PERSISTED_VIEW_SETTINGS,
   SELECT_VIEW,
   UPDATE_VIEW,
   UPDATE_COLUMN_VISIBILTY,
+  UPDATE_COLUMN_SETTINGS,
   SET_ALL_COLUMNS_VISIBLE,
   UNSET_ALL_COLUMNS_VISIBLE,
   RUN_FILTER,
@@ -24,13 +28,12 @@ import {
 import _merge from 'lodash.merge';
 import {getFilters} from '../utils';
 import {makeFilterQueryData} from '../apis/queries';
-const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0};
+const paginationDefault = {cursor: null, page: 1, skip: 0, take: 25, totalItems: 0, takeOptions: [10, 25, 50, 75, 100]};
 
 /** 
  * Curried. Takes the options and hooks, then returns a real reducer; 
  * */
 export default (options, hooks) => (state = initialState, action) => {
-  const lastState = {...state};
   let _state = {...state};
   let _data =  action.data;
 
@@ -114,6 +117,16 @@ export default (options, hooks) => (state = initialState, action) => {
       });
 
       return _state;
+    
+    case REPLACE_SELECTED_ITEMS:
+      _state.selectedItems = _data.selectedItems;
+
+      return _state;
+
+    case CLEAR_SELECTED_ITEMS:
+      _state.selectedItems = []; 
+
+      return _state;
 
     case SET_VIEWS:
       // Views must be an array, but we can pass a single view in if we want
@@ -121,12 +134,32 @@ export default (options, hooks) => (state = initialState, action) => {
 
       // Includes & defaults for views
       _data.views.map(view => {
+        // if view persistViewSettings
+        if (view.persistedViewsSettings) {
+          const viewSettings = _state.persistViewsSettings.find(v => v.view === view.id);
+          // replace view columns with persisted view settings
+          // view.columns = viewSettings.data.columns;
+        }
+
+        //TODO: Consult with Adam on moving the paginationDefault to view config
+        // if (!view._pagination) { view['_pagination'] = view.pagination; }
         if (!view._pagination) { view['_pagination'] = paginationDefault; }
         if (!view.filterGroups) { view['filterGroups'] = []; }
       });
 
       _state.views = _data.views;
       _state.selectedView = _data.views[0].id; // set selected view as the first item
+
+      return _state;
+
+    case SELECT_VIEW:
+      _state.selectedView = _data.id; 
+
+      return _state;
+    case SET_PERSISTED_VIEW_SETTINGS:
+      // Views must be an array, but we can pass a single view in if we want
+      if (!Array.isArray(_data.settings)) { _data.settings = [_data.settings]; }
+      _state.persistedViewsSettings = _data.settings;
 
       return _state;
 
@@ -148,7 +181,7 @@ export default (options, hooks) => (state = initialState, action) => {
 
     case UPDATE_COLUMN_VISIBILTY:
       const _updates = Array.isArray(_data.updates) ? _data.updates : [_data.updates];
-   
+
       // Input data example: _data.id _data.updates = {property: 'title', visible: false}
       _state.views = _state.views.map(view => {
 
@@ -162,11 +195,27 @@ export default (options, hooks) => (state = initialState, action) => {
                 column.visible = _update.visible;
               }
             });
-            
+
             return column;
           });
         }
 
+        return view;
+      });
+
+      return _state;
+
+    case UPDATE_COLUMN_SETTINGS:
+
+      const _settings = Array.isArray(_data.settings) ? _data.settings : [_data.settings];
+
+      // Input data example: _data.id _data.updates = {property: 'title', visible: false}
+      _state.views = _state.views.map(view => {
+
+        // If the view id matches, find & update columns we need to modify
+        if (view.id === _data.id) {
+            view.columns = _settings;
+        }
         return view;
       });
 
@@ -220,8 +269,9 @@ export default (options, hooks) => (state = initialState, action) => {
     // }
 
       // Update the selectedView with the current filter instructions
-      const {queryObject, queryString, filterObject} = makeFilterQueryData({filterObject: _data});
-      _state.selectedView = _data.view;
+      const {queryObject, queryString} = makeFilterQueryData({filterObject: _data});
+      //use _state.views[0] as default if _data.view === ""
+      _state.selectedView = _data.view === "" ? _state.views[0].id : _data.view;
       _state.queryObject = queryObject;
       _state.queryString = queryString;
       _state.filterObject = _data;

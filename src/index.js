@@ -30,6 +30,7 @@ export default class{
     this.views = new Views(this.rxdux, this.options, this);
     this.filters = new Filters(this.rxdux, this.options, this);
 
+    this._setPersistedViewSettings();
     this._setViews(this.options.views);
     this._setupReloadListener();
     this._onPageLoad();
@@ -44,7 +45,7 @@ export default class{
    */
   _makeGlobal() {
     try{
-      if(!window && !window.Filteredlist) {window['Filteredlist'] = {};}
+      if(window && !window.Filteredlist) {window['Filteredlist'] = {};}
       if(window && window.Filteredlist && !window.Filteredlist.instance) {window.Filteredlist.instance = {};}
 
       window.Filteredlist.instance[this.options.id || Math.random()*10000] = this;
@@ -97,6 +98,14 @@ export default class{
       });
 
     return hooks;
+  }
+
+  /**
+   * Set the store up with persisted view settings
+   * 
+   */
+  _setPersistedViewSettings() {
+    this.settings.setPersistedViewsSettings();
   }
 
   /**

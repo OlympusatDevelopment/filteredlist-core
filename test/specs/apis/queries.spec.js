@@ -106,7 +106,7 @@ describe('The Queries API ', () => {
   });
     
   it('_makeQueryString method should convert a query(filter) object to a query string', () => 
-    expect(queriesApi._makeQueryString(mockQueryObj)).to.eql(mockQueryString.replace('&view=eli', '')));
+    expect(queriesApi._makeQueryString(mockQueryObj)).to.eql(mockQueryString));
 
   it('_writeQueryStringToUrl method should modify the history api by writing to the location property', () =>
     expect(queriesApi._writeQueryStringToUrl(mockQueryString, {writeQueryStringToUrl: true}).location.search).to.eql(mockQueryString)); 

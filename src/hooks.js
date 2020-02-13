@@ -1,4 +1,4 @@
-import {Subject} from 'rxjs';
+import {Subject, ReplaySubject} from 'rxjs';
 
 let _instance;
 
@@ -8,7 +8,7 @@ export default class{
      * fl.onFilterChange$.subscribe(() => {});
      * fl.onFilterChange$.next();
      */
-    onFilterChange$ = new Subject();
+    onFilterChange$ = new ReplaySubject(null);
     
         /**   
      * @examples
@@ -81,13 +81,13 @@ export default class{
      * @examples
      * fl.onLoadingChange$.subscribe() => {});
      */
-    onLoadingChange$ = new Subject();
+    onLoadingChange$ = new ReplaySubject(null);
     
     /**   
      * @examples
      * fl.onColumnVisibilityChange$.subscribe() => {});
      */
-    onColumnVisibilityChange$ = new Subject();
+    onColumnVisibilityChange$ = new ReplaySubject(null);
     onSetAllColumnsVisible$ = new Subject();
     onUnsetAllColumnsVisible$ = new Subject();
 
@@ -104,11 +104,11 @@ export default class{
      */
     onQueryStringUpdated$ = new Subject();
     onQueryObjectUpdated$ = new Subject();
-    onFilterObjectUpdated$ = new Subject();
+    onFilterObjectUpdated$ = new ReplaySubject({});
 
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();
-    onItemsCleared$ = new Subject();
+    onItemsSelected$ = new Subject();
     onViewsSet$ = new Subject();
     onSelectedViewChange$ = new Subject();
     onViewUpdated$ = new Subject();
