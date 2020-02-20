@@ -140,7 +140,27 @@ export default (options, hooks) => (state = initialState, action) => {
           const viewPreferences = _state.preferences[view.id];
           // update view property with view preferences property
           if (viewPreferences) {
-            view.columns = viewPreferences.columns
+            Object.entries(viewPreferences).map(([key, value]) => {
+
+              /**
+               * NOTE:
+               * The purpose for the snippet of code below is due to JSON.stringify 
+               * skipping function properties. In this case, the tranform property on the column's config
+               * is being skipped when saving preferences to localstorage.
+               * The transform function is added to the column config.
+               */
+              if (key === 'columns') {
+                const updateColumns = value.map(col => {
+                  const column = view.columns.find(c => c.property === col.property);
+                  if (column.transform) {
+                    col.transform = column.transform;
+                  }
+                  return col;
+                });
+                view[key] = updateColumns;
+              }
+              view[key] = value;
+            })
           }
         }
 

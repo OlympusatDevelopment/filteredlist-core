@@ -152,9 +152,9 @@ export default class{
       data: {id, property, settings}
     }, 'state')
     .pipe(
-      first(),
       tap(state => {
-        this.hooks.onViewPreferencesUpdated$.next({id, property, settings, state});
+        console.log("TCL: updatePreferences -> state", state)
+        // this.hooks.onViewPreferencesUpdated$.next({id, property, settings, state});
         window.localStorage.setItem(this.prefsKey, JSON.stringify(state.preferences));
       }),
       untilDestroyed(this, 'destroy')
