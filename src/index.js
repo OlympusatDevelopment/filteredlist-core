@@ -105,7 +105,7 @@ export default class{
    * 
    */
   _setPersistedViewSettings() {
-    this.settings.setPersistedViewsSettings();
+    this.settings.setPreferences();
   }
 
   /**

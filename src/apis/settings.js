@@ -3,8 +3,8 @@ import {
   UPDATE_COLUMN_VISIBILTY,
   SET_ALL_COLUMNS_VISIBLE,
   UNSET_ALL_COLUMNS_VISIBLE,
-  UPDATE_COLUMN_SETTINGS,
-  SET_PERSISTED_VIEW_SETTINGS
+  UPDATE_PREFERENCES,
+  SET_PREFERENCES
 } from '../constants';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { of } from 'rxjs';
@@ -14,6 +14,7 @@ export default class{
     this.rxdux = rxdux;
     this.hooks = instance.hooks;
     this.options = options;
+    this.prefsKey = `${this.options.id}.prefs`;
   }
 
   /**
@@ -111,63 +112,57 @@ export default class{
     .subscribe(()=>{});
     return state$;
   }
-    /**
+
+  getPreferences() {
+    return this.rxdux.selector$('preferences')
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    );
+  }
+
+  setPreferences() {
+    if (window && window.localStorage) {
+      of(window.localStorage.getItem(this.prefsKey))
+      .pipe(
+        map(data => data ? JSON.parse(data) : {}),
+        untilDestroyed(this, 'destroy')
+      ).subscribe(preferences => {
+        this.rxdux.dispatch({
+          type: SET_PREFERENCES,
+          data: {preferences}
+        }, 'state')
+        .pipe(
+          first(),
+          untilDestroyed(this, 'destroy')
+        );
+      });
+    }
+  }
+
+  /**
    * Takes a view id and some column settings update data and sends it to the reducer for processing
    *
    * @param {*} id
    * @param {*} updates
    * @returns
    */
-  updateViewColumnSettings(id, settings) {
-    const key = `${this.options.id}`;
+  updatePreferences(id, property, settings) {
     const state$ = this.rxdux.dispatch({
-      type: UPDATE_VIEW_COLUMN_SETTINGS,
-      data: {id, settings}
+      type: UPDATE_PREFERENCES,
+      data: {id, property, settings}
     }, 'state')
     .pipe(
       first(),
-      tap(data => {
-        const _settings = {view: id, data: {columns: settings}};
-        const prefs = [...data.filter(v => v.view !== id), _settings];
-        window.localStorage.setItem(key, JSON.stringify(prefs));
+      tap(state => {
+        this.hooks.onViewPreferencesUpdated$.next({id, property, settings, state});
+        window.localStorage.setItem(this.prefsKey, JSON.stringify(state.preferences));
       }),
       untilDestroyed(this, 'destroy')
     );
 
     state$
-    .pipe(untilDestroyed(this, 'destroy'))
     .subscribe(()=>{});
     return state$;
-    
-  }
-
-  getPersistedViewsSettings() {
-    if (window && window.localStorage) {
-      return of(window.localStorage.getItem(this.options.id))
-      .pipe(
-        map(data => data ? JSON.parse(data) : []),
-        untilDestroyed(this, 'destroy')
-      );
-    }
-  }
-
-  setPersistedViewsSettings() {
-    if (window && window.localStorage) {
-      return of(window.localStorage.getItem(this.options.id))
-      .pipe(
-        map(data => data ? JSON.parse(data) : []),
-        untilDestroyed(this, 'destroy')
-      )
-      .subscribe(settings => {
-        const state$ = this.rxdux.dispatch({
-          type: SET_PERSISTED_VIEW_SETTINGS,
-          data: {settings}
-        }, 'state');
-        state$
-        .pipe(untilDestroyed(this, 'destroy'))
-        .subscribe(()=>{});
-      });
-    }
   }
   
   // Destroy method added for untilDestroy(this, 'destroy')
