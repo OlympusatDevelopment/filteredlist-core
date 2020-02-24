@@ -283,22 +283,15 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
 
     case RUN_FILTER:
-    // Example full filter command
-    // {
-    //   view : 'eli',
-    //   filters: [{
-    //     id: 'newtons',
-    //     value: ['f144y'],
-    //     operator: null
-    //   }],
-    //   sort: [{property: 'id', operator: 'DESC'}],
-    //   pagination: {skip: 1, take: 25}
-    // }
-
+      // Modifty _data payload to assign values 
+      // for {view: ''} keys if empty
+      if (_data.view === '') {
+        _data.view = _state.views[0].id;
+      }
       // Update the selectedView with the current filter instructions
       const {queryObject, queryString} = makeFilterQueryData({filterObject: _data});
       //use _state.views[0] as default if _data.view === ""
-      _state.selectedView = _data.view === "" ? _state.views[0].id : _data.view;
+      _state.selectedView = _data.view;
       _state.queryObject = queryObject;
       _state.queryString = queryString;
       _state.filterObject = _data;

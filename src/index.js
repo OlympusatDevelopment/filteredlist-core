@@ -124,7 +124,7 @@ export default class{
    * @returns
    */
   _onPageLoad(_queryString){
-    let queryString = _queryString;;
+    let queryString = _queryString;
     
     if (!queryString) {
       queryString = this.queries._readQueryStringFromURL();

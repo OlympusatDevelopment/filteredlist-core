@@ -15,7 +15,6 @@ export default class{
     this.views = instance.views;
     this._isPhantomHistory = instance._isPhantomHistory;
     this.history = instance.history;
-
   }
 
   /**
@@ -474,7 +473,6 @@ export default class{
 
         // Build pagination object
         if (key === 'view') {
-          
           acc.view = value[0];
         } else if (['skip', 'take', 'page', 'cursor'].includes(key)) {
           
