@@ -22,5 +22,5 @@ export default {
   }, // {where: '[PROPNAME ie. id]', is: 'adjhfoadfh0q973580qy35'}
   loading: false, // Toggled anytime there is a filterchange, and we are waiting for results
   selectedView: '',// defaults to the first view,
-  persistedViewsSettings: []
+  preferences: {}
 };

@@ -87,7 +87,7 @@ export default class{
      * @examples
      * fl.onColumnVisibilityChange$.subscribe() => {});
      */
-    onColumnVisibilityChange$ = new ReplaySubject(null);
+    onColumnVisibilityChange$ = new ReplaySubject();
     onSetAllColumnsVisible$ = new Subject();
     onUnsetAllColumnsVisible$ = new Subject();
 
@@ -102,9 +102,9 @@ export default class{
      * mostly used internally to detect store changes
      *
      */
-    onQueryStringUpdated$ = new Subject();
-    onQueryObjectUpdated$ = new Subject();
-    onFilterObjectUpdated$ = new ReplaySubject({});
+    onQueryStringUpdated$ = new ReplaySubject();
+    onQueryObjectUpdated$ = new ReplaySubject();
+    onFilterObjectUpdated$ = new ReplaySubject();
 
     onDataReplaced$ = new Subject();
     onItemUpdated$ = new Subject();
@@ -112,6 +112,9 @@ export default class{
     onViewsSet$ = new Subject();
     onSelectedViewChange$ = new Subject();
     onViewUpdated$ = new Subject();
+
+
+    onViewPreferencesUpdated$ = new ReplaySubject();
 
     constructor() {
       // Singleton

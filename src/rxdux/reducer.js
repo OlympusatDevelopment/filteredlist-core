@@ -15,7 +15,8 @@ import {
   REPLACE_SELECTED_ITEMS,
   CLEAR_SELECTED_ITEMS,
   SET_VIEWS,
-  SET_PERSISTED_VIEW_SETTINGS,
+  SET_PREFERENCES,
+  UPDATE_PREFERENCES,
   SELECT_VIEW,
   UPDATE_VIEW,
   UPDATE_COLUMN_VISIBILTY,
@@ -135,10 +136,32 @@ export default (options, hooks) => (state = initialState, action) => {
       // Includes & defaults for views
       _data.views.map(view => {
         // if view persistViewSettings
-        if (view.persistedViewsSettings) {
-          const viewSettings = _state.persistViewsSettings.find(v => v.view === view.id);
-          // replace view columns with persisted view settings
-          // view.columns = viewSettings.data.columns;
+        if (view.persistViewPreferences) {
+          const viewPreferences = _state.preferences[view.id];
+          // update view property with view preferences property
+          if (viewPreferences) {
+            Object.entries(viewPreferences).map(([key, value]) => {
+
+              /**
+               * NOTE:
+               * The purpose for the snippet of code below is due to JSON.stringify 
+               * skipping function properties. In this case, the tranform property on the column's config
+               * is being skipped when saving preferences to localstorage.
+               * The transform function is added to the column config.
+               */
+              if (key === 'columns') {
+                const updateColumns = value.map(col => {
+                  const column = view.columns.find(c => c.property === col.property);
+                  if (column.transform) {
+                    col.transform = column.transform;
+                  }
+                  return col;
+                });
+                view[key] = updateColumns;
+              }
+              view[key] = value;
+            })
+          }
         }
 
         //TODO: Consult with Adam on moving the paginationDefault to view config
@@ -156,13 +179,17 @@ export default (options, hooks) => (state = initialState, action) => {
       _state.selectedView = _data.id; 
 
       return _state;
-    case SET_PERSISTED_VIEW_SETTINGS:
-      // Views must be an array, but we can pass a single view in if we want
-      if (!Array.isArray(_data.settings)) { _data.settings = [_data.settings]; }
-      _state.persistedViewsSettings = _data.settings;
+    case SET_PREFERENCES:
+      _state.preferences = _data.preferences;
 
       return _state;
+    case UPDATE_PREFERENCES:
+      _state.preferences = {
+        ..._state.preferences,
+        ...{[_data.id]: {[_data.property]: _data.settings }}
+      };
 
+      return _state;
     case SELECT_VIEW:
       _state.selectedView = _data.id; 
 
@@ -256,22 +283,15 @@ export default (options, hooks) => (state = initialState, action) => {
       return _state;
 
     case RUN_FILTER:
-    // Example full filter command
-    // {
-    //   view : 'eli',
-    //   filters: [{
-    //     id: 'newtons',
-    //     value: ['f144y'],
-    //     operator: null
-    //   }],
-    //   sort: [{property: 'id', operator: 'DESC'}],
-    //   pagination: {skip: 1, take: 25}
-    // }
-
+      // Modifty _data payload to assign values 
+      // for {view: ''} keys if empty
+      if (_data.view === '') {
+        _data.view = _state.views[0].id;
+      }
       // Update the selectedView with the current filter instructions
       const {queryObject, queryString} = makeFilterQueryData({filterObject: _data});
       //use _state.views[0] as default if _data.view === ""
-      _state.selectedView = _data.view === "" ? _state.views[0].id : _data.view;
+      _state.selectedView = _data.view;
       _state.queryObject = queryObject;
       _state.queryString = queryString;
       _state.filterObject = _data;
