@@ -40,11 +40,14 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkspaceItemAdded$.next({item, workspace});
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
-    workspace$.subscribe(() => {});
+    workspace$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return workspace$;
   }
 
@@ -62,11 +65,14 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkspaceItemRemoved$.next({item: id, workspace});
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
-    workspace$.subscribe(() => {});
+    workspace$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return workspace$;
   }
 
@@ -83,11 +89,14 @@ export default class{
       first(),
       tap(workspace => {
         this.hooks.onWorkSpaceCleared$.next({workspace});
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
-    workspace$.subscribe(() => {});
+    workspace$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return workspace$;
   }
 

@@ -98,8 +98,7 @@ export default class{
             property: column.property, 
             sort: typeof column.sort === 'undefined' ? null : column.sort
           }))
-      ),
-      untilDestroyed(this, 'destroy')); 
+      )); 
   }
 
   /**
@@ -114,8 +113,7 @@ export default class{
       .pipe(map(views => 
         views.filter(view => ((viewId ? view.id === viewId : true)))[0]
           ._pagination
-      ),
-      untilDestroyed(this, 'destroy')); 
+      )); 
   }
 
   /**
@@ -145,11 +143,14 @@ export default class{
         if (filterObject.sort) { this.hooks._onSort$.next({view: filterObject.view, sort: filterObject.sort, state}); }
         if (filterObject.pagination) { this.hooks._onPaginationChange$.next({view: filterObject.view, pagination: filterObject.pagination, state}); }
         if (filterObject.filters) { this.hooks._onFilterChange$.next({change: filterObject, state}); }
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
-    state$.subscribe(() => {});// ensure a hook run
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});// ensure a hook run
 
     return state$
   }
@@ -168,10 +169,13 @@ export default class{
       tap(state => {
         this.hooks._onFiltersReset$.next({change: {}, state});
         this.hooks.onLoadingChange$.next({loading: true});
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
-    state$.subscribe(() => {});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
 
     return true;
   }

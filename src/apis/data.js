@@ -32,14 +32,23 @@ export default class{
   }
 
   /**
+   * Transforms a hashmap to an iteratable
+   * @returns
+   */
+  _transformKeyValueToCollection(items) {
+    return Object.entries(items).map(([k, v]) => v);
+  }
+
+  /**
    * Returns an Observable of the items in the store$.
    * Output transforms the key value stored data back to an array.
    * @returns
    */
   getItems() {
     return this.rxdux.selector$('items')
-      .pipe(map((item) => Object.keys(item).map(k => item[k])),
-      untilDestroyed(this, 'destroy'));
+      .pipe(
+        map((item) => Object.keys(item).map(k => item[k]))
+      );
   }
 
   /**
@@ -50,7 +59,7 @@ export default class{
    */
   getItemById(id) {
     return this.rxdux.selector$('items')
-      .pipe(pluck(id), untilDestroyed(this, 'destroy'));
+      .pipe(pluck(id));
   }
 
   /**
@@ -72,14 +81,17 @@ export default class{
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onDataPushed$.next({items: state.items, state, totalItems});
+        this.hooks.onDataPushed$.next({items: this._transformKeyValueToCollection(state.items), state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state) : this.getItems()),
-      untilDestroyed(this, 'destroy')
+      mergeMap((state) => selector == 'state' ? of(state) : this.getItems())
     );
     
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$;
 
   }
@@ -95,23 +107,26 @@ export default class{
     const state$ = this.rxdux.dispatch({
       type: REPLACE_ITEMS,
       data: {
-        items: Array.isArray(items) ? items : [items],
+        // items: Array.isArray(items) ? items : [items],
         //TODO: What was the purpose of this method.
-        // items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
+        items: this._transformCollectionToKeyValue(Array.isArray(items) ? items : [items], idProp),
         totalItems
       }
     }, 'state')
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onDataReplaced$.next({items: state.items, state, totalItems});
+        this.hooks.onDataReplaced$.next({items: this._transformKeyValueToCollection(state.items), state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
-      untilDestroyed(this, 'destroy')
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
 
-    state$.subscribe(() => {});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return state$;
   }
 
@@ -130,15 +145,18 @@ export default class{
     .pipe(
       first(),
       tap(state => {
-        this.hooks.onItemUpdated$.next({item, items: state.items, state, totalItems});
+        this.hooks.onItemUpdated$.next({item, items: this._transformKeyValueToCollection(state.items), state, totalItems});
         this.hooks.onLoadingChange$.next({loading: false, state});
       }),
-      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
-      untilDestroyed(this, 'destroy')
+      mergeMap((state) => selector == 'state' ? of(state)  : this.getItems())
     );
 
-    state$.subscribe(()=>{});
-    return state$
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
+    return state$;
   }
 
   /**
@@ -155,11 +173,14 @@ export default class{
       tap(state => {
         this.hooks.onItemsCleared$.next({items: state.items, state});
       }),
-      mergeMap(() => this.getItems()),
-      untilDestroyed(this, 'destroy')
+      mergeMap(() => this.getItems())
     );
 
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$
   }
 
@@ -181,10 +202,13 @@ export default class{
         this.hooks.onItemsSelected$.next({selectedItems: state.selectedItems, state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
-      untilDestroyed(this, 'destroy')
     );
 
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$
   }
 
@@ -203,10 +227,13 @@ export default class{
         this.hooks.onItemsSelected$.next({selectedItems: [], state});
       }),
       mergeMap((state) => selector == 'state' ? of(state)  : this.getItems()),
-      untilDestroyed(this, 'destroy')
     );
 
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$
   }
 

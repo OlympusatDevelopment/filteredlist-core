@@ -31,8 +31,7 @@ export default class{
       .pipe(map(views => 
         views.filter(view => ((viewId ? view.id === viewId : true)))[0].columns
           .map(column => ({ property: column.property, visible: !!column.visible }))
-      ),
-      untilDestroyed(this, 'destroy')); 
+      )); 
   }
 
   /**
@@ -53,11 +52,14 @@ export default class{
       tap(state => {
         this.hooks.onColumnVisibilityChange$.next({updates: 'unset-all', views: state.views, state});
       }),
-      mergeMap(state => this.getColumnVisibility(id)),
-      untilDestroyed(this, 'destroy')
+      mergeMap(state => this.getColumnVisibility(id))
     );
 
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$;
   }
 
@@ -78,11 +80,14 @@ export default class{
         this.hooks.onColumnVisibilityChange$.next({updates: 'set-all', views: state.views, state});
         this.hooks.onSetAllColumnsVisible$.next({views: state.views, state});
       }),
-      mergeMap(state => this.getColumnVisibility(id)),
-      untilDestroyed(this, 'destroy')
+      mergeMap(state => this.getColumnVisibility(id))
     );
 
-    state$.subscribe(()=>{});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(()=>{});
     return state$;
   }
 
@@ -104,7 +109,6 @@ export default class{
         this.hooks.onUnsetAllColumnsVisible$.next({views: state.views, state});
       }),
       mergeMap(state => this.getColumnVisibility(id)),
-      untilDestroyed(this, 'destroy')
     );
 
     state$
@@ -114,10 +118,7 @@ export default class{
   }
 
   getPreferences() {
-    return this.rxdux.selector$('preferences')
-    .pipe(
-      untilDestroyed(this, 'destroy')
-    );
+    return this.rxdux.selector$('preferences');
   }
 
   setPreferences() {
@@ -132,8 +133,7 @@ export default class{
           data: {preferences}
         }, 'state')
         .pipe(
-          first(),
-          untilDestroyed(this, 'destroy')
+          first()
         );
       });
     }
@@ -153,14 +153,15 @@ export default class{
     }, 'state')
     .pipe(
       tap(state => {
-        console.log("TCL: updatePreferences -> state", state)
         // this.hooks.onViewPreferencesUpdated$.next({id, property, settings, state});
         window.localStorage.setItem(this.prefsKey, JSON.stringify(state.preferences));
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
     state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
     .subscribe(()=>{});
     return state$;
   }

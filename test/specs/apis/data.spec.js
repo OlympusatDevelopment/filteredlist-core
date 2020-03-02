@@ -90,7 +90,7 @@ describe('The Data API ', () => {
       {id: 246, name: 'Tigers'},
       {id: 314, name: 'Eli'}
     ];
-
+    
     dataApi.updateItem({id: 34, name: 'EliFishies'}, 'id')
       .subscribe(d => {
         if(!called) {
@@ -120,6 +120,7 @@ describe('The Data API ', () => {
     dataApi.clearItems()
       .subscribe(d => {
         if(!called) {
+          console.log('dafdsafasfsdfsdfdfs', d);
           expect(d).to.eql([]);
           done();called = true;
         }
