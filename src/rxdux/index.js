@@ -30,7 +30,7 @@ export default class{
    *
    * @param {*} [action={}]
    */
-  dispatch(action = {}, selector) {
+  dispatch(action = {}, selector = 'state') {
     this.store.dispatch(action);
 
     if (selector && selector === 'state') {

@@ -1,6 +1,6 @@
 {
   "name": "filteredlist-core",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "The core api behind the filteredlist UIs. Used for running filter commands and maintaining an internal store.",
   "main": "index.js",
   "scripts": {
