@@ -486,7 +486,6 @@ export default class{
             sort: value[0]
           });
         } else {
-          
           acc.filters.push({
             id: key, 
             value

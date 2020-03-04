@@ -61,11 +61,11 @@ export default class{
     const selectedView$ = this.rxdux.dispatch({
       type: SELECT_VIEW,
       data: {id}
-    }, 'selectedView')
+    })
     .pipe(
       first(),
-      tap(selectedView => {
-        this.hooks.onSelectedViewChange$.next({selectedView});
+      tap(state => {
+        this.hooks.onSelectedViewChange$.next(state);
       })
     );
 
