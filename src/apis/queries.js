@@ -95,13 +95,15 @@ export default class{
       .pipe(
         first(),
         tap(filterObject => {
-          console.log('nexting filter Object', filterObject);
           this.hooks.onFilterObjectUpdated$.next({filterObject});
-        }),
-        untilDestroyed(this, 'destroy')
+        })
       );
 
-      filterObject$.subscribe(() => {console.log('onFilterObjectChanged')});
+      filterObject$
+      .pipe(
+        untilDestroyed(this, 'destroy')
+      )
+      .subscribe(() => {});
       return filterObject$;
   }
 
@@ -484,7 +486,6 @@ export default class{
             sort: value[0]
           });
         } else {
-          
           acc.filters.push({
             id: key, 
             value

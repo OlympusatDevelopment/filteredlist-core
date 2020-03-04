@@ -40,11 +40,14 @@ export default class{
       first(),
       tap(_views => {
         this.hooks.onViewsSet$.next({views: _views});
-      }),
-      untilDestroyed(this, 'destroy')
+      })
     );
 
-    views$.subscribe(() => {});
+    views$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return views$;
   }
 
@@ -58,16 +61,20 @@ export default class{
     const selectedView$ = this.rxdux.dispatch({
       type: SELECT_VIEW,
       data: {id}
-    }, 'selectedView')
+    }, 'state')
     .pipe(
       first(),
-      tap(selectedView => {
-        this.hooks.onSelectedViewChange$.next({selectedView});
-      }),
-      untilDestroyed(this, 'destroy')
+      tap(state => {
+      console.log("TCL: selectView -> state", state)
+        this.hooks.onSelectedViewChange$.next(state);
+      })
     );
 
-    selectedView$.subscribe(() => {});
+    selectedView$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return selectedView$;
   }
 
@@ -88,8 +95,7 @@ export default class{
         }),
         mergeMap(views => of(views
           .filter(view => view.id === _selectedView)[0]
-        )),
-        untilDestroyed(this, 'destroy')
+        ))
       )
   }
 
@@ -104,8 +110,7 @@ export default class{
       .pipe(
         mergeMap(views => of(views
           .filter(view => view.id === id)[0]
-        )),
-        untilDestroyed(this, 'destroy')
+        ))
       )
   }
 
@@ -129,11 +134,14 @@ export default class{
           state
         });
       }),
-      mergeMap(() => this.getViewById(id)),
-      untilDestroyed(this, 'destroy')
+      mergeMap(() => this.getViewById(id))
     );
 
-    state$.subscribe(() => {});
+    state$
+    .pipe(
+      untilDestroyed(this, 'destroy')
+    )
+    .subscribe(() => {});
     return state$;
   }
 
